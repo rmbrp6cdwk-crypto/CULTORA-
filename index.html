@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#090A0F" />
+<meta name="description" content="Cultora · Pillole di cultura, scienza, storia e scoperte da Wikipedia" />
+<title>Cultora · Pillole di cultura</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%23090A0F%22/%3E%3Ctext x=%2250%22 y=%2270%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22%23F5B83D%22 font-family=%22Georgia%22%3EC%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <p class="eyebrow">Pillole di sapere</p>
+    <h1>Scorri. Scopri. <em>Approfondisci.</em></h1>
+    <p>Cultura, scienza, storia e scoperte da Wikipedia in italiano, raccontate in pochi secondi.</p>
+    <p class="hint">↑ ↓ per scorrere le pillole</p>
+  </aside>
+
+  <main class="phone" id="phone" data-testid="feed-container">
+    <div class="feed no-scrollbar" id="feed-discover" data-testid="feed-scroll-discover"></div>
+    <div class="feed no-scrollbar hidden" id="feed-otd" data-testid="feed-scroll-history"></div>
+    <div class="feed no-scrollbar hidden" id="feed-search" data-testid="feed-scroll-search"></div>
+    <div class="panel no-scrollbar hidden" id="search-panel" data-testid="search-panel"></div>
+    <div class="panel no-scrollbar hidden" id="saved-panel" data-testid="saved-articles-drawer"></div>
+
+    <header class="topbar">
+      <div class="topbar-row">
+        <span class="brand">Cultora<span>.</span></span>
+        <span class="otd-label hidden" id="otd-label" data-testid="otd-date-label"></span>
+        <div class="topic hidden" id="topic">
+          <button class="topic-edit" data-action="edit-query" data-testid="search-topic-chip"></button>
+          <button class="topic-clear" data-action="clear-query" data-testid="search-clear-button" aria-label="Cancella ricerca"></button>
+        </div>
+      </div>
+      <div class="chips no-scrollbar" id="chips"></div>
+    </header>
+
+    <nav class="nav" id="nav"></nav>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
