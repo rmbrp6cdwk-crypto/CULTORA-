@@ -1,4 +1,3 @@
-javascript
 // Cultora · Menu laterale + Scaffale con filtri a pila: Libri (Open Library), Podcast (Apple Podcasts). Il Cinema è in cinema.js
 (() => {
 "use strict";
