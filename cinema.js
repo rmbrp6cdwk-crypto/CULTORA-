@@ -99,7 +99,9 @@ const cinema = {
   id: "cinema", h1: "Cosa <em>guardo</em> stasera?", sub: "Parti da un'idea e affina: genere, temi, premi, attori. Ogni filtro si somma agli altri.",
   loading: "Cerco tra le pellicole…", category: "cinema", start: [], sorts: SORTS,
   facets: [{ f: "kw", label: "Temi", options: THEMES }, { f: "genre", label: "Generi", options: GENRES }, { f: "q", label: "Premi e qualità", options: QUALITY }, { f: "decade", label: "Decennio", single: true, options: DECADES }, { f: "runtime", label: "Durata", single: true, options: RUNTIME }],
-  find: { ph: "Cerca un attore o un regista", run: async (q) => (await api({ op: "person", q })).items.map(personF) },
+  find: { ph: "Cerca un film, un attore o un regista", who: "Attori e registi",
+    titles: async (q) => (await api({ op: "search", q })).items.map(filmItem),
+    run: async (q) => (await api({ op: "person", q })).items.map(personF) },
   meta: (it) => [it.year, it.rating && `★ ${it.rating}`].filter(Boolean).join(" · "),
   fetch: fetchFilms, detail: filmDetail, wikiQuery: (it) => `${it.title} film ${it.year || ""}`, wikiOk: (p) => /film/i.test(p.title) || /\bfilm\b/i.test((p.extract || "").slice(0, 200)), saveObj: S.saveObj("cinema")
 };
