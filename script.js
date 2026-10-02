@@ -5,13 +5,14 @@ const API = "https://it.wikipedia.org/w/api.php";
 const REST = "https://it.wikipedia.org/api/rest_v1";
 const SAVED_KEY = "cultora_leggi_dopo";
 const RECENT_KEY = "cultora_recent_searches";
+const TANE_KEY = "cultora_tane";
 
 /* ---------- Icone (Lucide, inline SVG) ---------- */
 const ICONS = {
   sparkles: '<path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.13-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.13a.5.5 0 0 1 .96 0L14.06 8.5A2 2 0 0 0 15.5 9.94l6.13 1.58a.5.5 0 0 1 0 .96L15.5 14.06a2 2 0 0 0-1.44 1.44l-1.58 6.13a.5.5 0 0 1-.96 0z"/>',
-  atom: '<circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z"/><path d="M15.7 15.7c4.52-4.54 6.54-9.870 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z"/>',
+  atom: '<circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z"/><path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z"/>',
   landmark: '<line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>',
-  palette: '<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"/>',
+  palette: '<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.550-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"/>',
   leaf: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
   compass: '<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>',
   orbit: '<circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><path d="M10.4 21.9a10 10 0 0 0 9.94-15.42"/><path d="M13.5 2.1a10 10 0 0 0-9.84 15.42"/>',
@@ -34,7 +35,12 @@ const ICONS = {
   loader: '<path d="M21 12a9 9 0 1 1-6.22-8.56"/>',
   rotate: '<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>',
   flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
-  chevron: '<path d="m9 18 6-6-6-6"/>'
+  chevron: '<path d="m9 18 6-6-6-6"/>',
+  globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+  trending: '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+  image: '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+  rabbit: '<path d="M13 16a3 3 0 0 1 2.24 5"/><path d="M18 12h.01"/><path d="M18 21h-8a4 4 0 0 1-4-4 7 7 0 0 1 7-7h.2L9.6 6.4a1 1 0 1 1 2.8-2.8L15.8 7h.2c3.3 0 6 2.7 6 6v1a2 2 0 0 1-2 2h-1a3 3 0 0 0-3 3"/><path d="M20 8.54V4a2 2 0 1 0-4 0v3"/><path d="M7.612 12.524a3 3 0 1 0-1.6 4.3"/>',
+  arrowLeft: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>'
 };
 const icon = (name, cls = "") =>
   `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
@@ -345,6 +351,7 @@ function cardHTML(item, i) {
       <div class="badges">
         <span class="badge" data-testid="card-category-badge" style="color:${c.color};border-color:${c.color}55;background:${c.color}1a">${icon(c.icon, "ic-sm")} ${c.label}</span>
         ${item.year ? `<span class="badge badge-year" data-testid="card-year-badge">${icon("calendar", "ic-sm")} ${esc(item.year)}</span>` : ""}
+        ${item.badge ? `<span class="badge badge-year" data-testid="card-extra-badge">${icon(item.badgeIcon || "sparkles", "ic-sm")} ${esc(item.badge)}</span>` : ""}
       </div>
       <button class="card-title" data-action="open" data-key="${k}" data-testid="card-catchy-title">${esc(item.hook)}</button>
       <p class="card-pill" data-testid="card-summary-pill">${esc(item.pill)}</p>
@@ -503,14 +510,32 @@ function openSheet(item) {
   el.className = "sheet";
   el.setAttribute("data-testid", "article-detail-sheet");
   phone.appendChild(el);
-  sheet = { el, item, title: item.wiki_title, data: null, error: false };
+  sheet = { el, item, title: item.wiki_title, data: null, error: false, path: [item.wiki_title] };
   loadSheetArticle();
   requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("open")));
+}
+
+function openTitle(title, extra = {}) {
+  const item = {
+    key: `wiki-${title}`, wiki_title: title, hook: title, pill: "", category: extra.category || "scoperte", facts: [],
+    image: extra.image || null, url: `https://it.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, "_"))}`
+  };
+  itemsByKey.set(item.key, item);
+  openSheet(item);
+}
+
+// Tana del coniglio: salva il percorso se hai seguito almeno 3 voci
+function saveTana(path) {
+  if (path.length < 3) return;
+  const tane = readJSON(TANE_KEY, []).filter((t) => t.path.join("|") !== path.join("|"));
+  localStorage.setItem(TANE_KEY, JSON.stringify([{ path, at: Date.now() }, ...tane].slice(0, 20)));
+  toast(`Tana del coniglio salvata · ${path.length} passi`);
 }
 
 function closeSheet() {
   if (!sheet) return;
   const el = sheet.el;
+  saveTana(sheet.path);
   sheet = null;
   el.classList.remove("open");
   setTimeout(() => el.remove(), 450);
@@ -545,6 +570,10 @@ function renderSheet() {
     <div class="sheet-scroll no-scrollbar">
       <div class="sheet-hero"><img src="${esc(hero)}" alt="${esc(title)}"></div>
       <div class="sheet-body">
+        ${sheet.path.length > 1 ? `<div class="trail" data-testid="rabbit-trail">
+          <p class="trail-head">${icon("rabbit", "ic-sm")} Tana del coniglio · ${sheet.path.length} passi</p>
+          <div class="trail-steps no-scrollbar">${sheet.path.map((t, i) => `<button class="trail-step ${i === sheet.path.length - 1 ? "on" : ""}" data-action="sheet-jump" data-i="${i}" data-testid="rabbit-trail-step-${i}">${esc(t)}</button>`).join('<span class="trail-sep">›</span>')}</div>
+        </div>` : ""}
         ${orig ? `<span class="sheet-cat" style="color:${c.color}">${c.label}${item.year ? ` · ${esc(item.year)}` : ""}</span>` : ""}
         <h1 class="sheet-title" data-testid="article-title">${esc(orig ? item.hook : title)}</h1>
         ${orig ? `<p class="sheet-voice">Voce: ${esc(item.wiki_title)}</p>` : ""}
@@ -580,6 +609,7 @@ function renderChips() {
 const TABS = [
   { id: "feed", label: "Scopri", icon: "sparkles", testId: "nav-feed-tab" },
   { id: "otd", label: "Accadde oggi", icon: "calendar", testId: "nav-history-tab" },
+  { id: "explore", label: "Esplora", icon: "globe", testId: "nav-explore-tab" },
   { id: "search", label: "Cerca", icon: "search", testId: "nav-search-tab" },
   { id: "saved", label: "Leggi dopo", icon: "bookmark", testId: "nav-saved-tab" }
 ];
@@ -607,7 +637,9 @@ function update() {
   $("#topic").classList.toggle("hidden", !(tab === "search" && query && !editing));
   $(".topic-edit").innerHTML = `${icon("search", "ic-sm")} ${esc(query)}`;
   renderNav();
+  onUpdate.forEach((fn) => fn(state));
 }
+const onUpdate = [];
 
 function setTab(t) {
   state.tab = t;
@@ -644,8 +676,9 @@ phone.addEventListener("click", (e) => {
     case "remove": state.saved = state.saved.filter((s) => s.key !== key); persistSaved(); refreshSaveButtons(key); break;
     case "sheet-close": closeSheet(); break;
     case "sheet-save": toggleSave(sheet.item); renderSheet(); break;
-    case "sheet-related": sheet.title = el.dataset.title; loadSheetArticle(); break;
-    case "sheet-back": sheet.title = sheet.item.wiki_title; loadSheetArticle(); break;
+    case "sheet-related": sheet.title = el.dataset.title; sheet.path.push(sheet.title); loadSheetArticle(); break;
+    case "sheet-back": sheet.title = sheet.item.wiki_title; sheet.path.push(sheet.title); loadSheetArticle(); break;
+    case "sheet-jump": sheet.path = sheet.path.slice(0, +el.dataset.i + 1); sheet.title = sheet.path.at(-1); loadSheetArticle(); break;
   }
 });
 
@@ -663,6 +696,12 @@ window.addEventListener("keydown", (e) => {
   e.preventDefault();
   f.scrollBy({ top: (e.key === "ArrowDown" ? 1 : -1) * f.clientHeight, behavior: "smooth" });
 });
+
+/* ---------- Interfaccia per esplora.js ---------- */
+window.Cultora = {
+  REST, TANE_KEY, wiki, buildPill, guessCategory, cleanText, sentences, truncate, shuffle, hash, icon, esc, fallback, toast,
+  readJSON, state, feeds, createFeed, itemsByKey, openTitle, update, onUpdate
+};
 
 /* ---------- Avvio ---------- */
 $("#otd-label").textContent = `Accadde il ${new Date().toLocaleDateString("it-IT", { day: "numeric", month: "long" })}`;
