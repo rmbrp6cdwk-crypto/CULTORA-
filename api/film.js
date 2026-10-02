@@ -1,4 +1,3 @@
-javascript
 // Vercel: /api/film → film da TMDB (chiave nella variabile TMDB_API_KEY) + Oscar vinti da Wikidata
 const T = "https://api.themoviedb.org/3";
 const IMG = "https://image.tmdb.org/t/p/";
