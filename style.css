@@ -192,3 +192,7 @@ ul{list-style:none}
 /* Blocca lo spostamento laterale delle pagine (la luce dorata usciva dal bordo) */
 .glow{right:0}
 .panel,.sh-detail{overflow-x:hidden}
+/* Copertine sempre dentro lo schermo (iPhone) */
+.panel .sh-grid,.related{grid-template-columns:repeat(2,minmax(0,1fr))}
+.sh-card,.sh-cover{min-width:0;max-width:100%}
+.sh-cover img{display:block;max-width:100%}
