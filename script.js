@@ -3,6 +3,7 @@
 
 const API = "https://it.wikipedia.org/w/api.php";
 const REST = "https://it.wikipedia.org/api/rest_v1";
+const WIKI_URL = "https://it.wikipedia.org/wiki/";
 const SAVED_KEY = "cultora_leggi_dopo";
 const RECENT_KEY = "cultora_recent_searches";
 const TANE_KEY = "cultora_tane";
@@ -12,7 +13,7 @@ const ICONS = {
   sparkles: '<path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.13-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.13a.5.5 0 0 1 .96 0L14.06 8.5A2 2 0 0 0 15.5 9.94l6.13 1.58a.5.5 0 0 1 0 .96L15.5 14.06a2 2 0 0 0-1.44 1.44l-1.58 6.13a.5.5 0 0 1-.96 0z"/>',
   atom: '<circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z"/><path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z"/>',
   landmark: '<line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>',
-  palette: '<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.550-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"/>',
+  palette: '<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"/>',
   leaf: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
   compass: '<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>',
   orbit: '<circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><path d="M10.4 21.9a10 10 0 0 0 9.94-15.42"/><path d="M13.5 2.1a10 10 0 0 0-9.84 15.42"/>',
@@ -40,7 +41,10 @@ const ICONS = {
   trending: '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
   image: '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
   rabbit: '<path d="M13 16a3 3 0 0 1 2.24 5"/><path d="M18 12h.01"/><path d="M18 21h-8a4 4 0 0 1-4-4 7 7 0 0 1 7-7h.2L9.6 6.4a1 1 0 1 1 2.8-2.8L15.8 7h.2c3.3 0 6 2.7 6 6v1a2 2 0 0 1-2 2h-1a3 3 0 0 0-3 3"/><path d="M20 8.54V4a2 2 0 1 0-4 0v3"/><path d="M7.612 12.524a3 3 0 1 0-1.6 4.3"/>',
-  arrowLeft: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>'
+  arrowLeft: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+  film: '<path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/><path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 4"/><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>',
+  menu: '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+  headphones: '<path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>'
 };
 const icon = (name, cls = "") =>
   `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
@@ -87,15 +91,16 @@ const CATS = [
   { id: "musica", label: "Musica", icon: "music", color: "#F472B6",
     seeds: ["compositore", "opera lirica", "sinfonia", "strumento musicale", "jazz", "musica barocca", "orchestra", "melodramma", "genere musicale", "violino"],
     kw: /music|compositor|opera lirica|sinfoni|album|cantant|orchestr|melodramm|strumento/gi,
-    hooks: ["{t}: la colonna sonora della storia", "{t}: da ascoltare", "{t}: la storia in musica"] }
+    hooks: ["{t}: la colonna sonora della storia", "{t}: da ascoltare", "{t}: la storia in musica"] },
+  { id: "cinema", label: "Cinema", icon: "film", color: "#F87171",
+    seeds: ["film", "regista", "attore", "premio Oscar", "cinema muto", "neorealismo", "film d'animazione", "festival di Cannes", "commedia all'italiana", "western"],
+    kw: /\b(?:film|regist[ai]|cinema|cinematograf|attor[ei]\b|attric|pellicol|Oscar|sceneggiat)/gi,
+    hooks: ["{t}: dietro la macchina da presa", "{t}: una storia da grande schermo", "{t}: ciak, si gira"] }
 ];
 const DEFAULT_HOOKS = ["{t}: lo sapevi?", "{t}: il lato sorprendente", "{t}: cosa c'è da sapere", "{t}, in 30 secondi", "{t}: una curiosità al giorno"];
 const SUGGESTIONS = ["oceani", "rinascimento", "buco nero", "antico Egitto", "vulcani", "Leonardo da Vinci", "dinosauri", "jazz", "samurai", "piramide", "mitologia", "Marte"];
-const FALLBACKS = [
-  "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?crop=entropy&cs=srgb&fm=jpg&q=80&w=1080",
-  "https://images.unsplash.com/photo-1566410824233-a8011929225c?crop=entropy&cs=srgb&fm=jpg&q=80&w=1080",
-  "https://images.unsplash.com/photo-1609083590460-7b8cc0ca65f8?crop=entropy&cs=srgb&fm=jpg&q=80&w=1080"
-];
+const UNSPLASH = "https://images.unsplash.com/photo-";
+const FALLBACKS = ["1502134249126-9f3755a50d78", "1566410824233-a8011929225c", "1609083590460-7b8cc0ca65f8"].map((id) => `${UNSPLASH}${id}?w=1080`);
 const getCat = (id) => CATS.find((c) => c.id === id) || CATS[0];
 
 /* ---------- Utility ---------- */
@@ -518,7 +523,7 @@ function openSheet(item) {
 function openTitle(title, extra = {}) {
   const item = {
     key: `wiki-${title}`, wiki_title: title, hook: title, pill: "", category: extra.category || "scoperte", facts: [],
-    image: extra.image || null, url: `https://it.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, "_"))}`
+    image: extra.image || null, url: `${WIKI_URL}${encodeURIComponent(title.replace(/ /g, "_"))}`
   };
   itemsByKey.set(item.key, item);
   openSheet(item);
@@ -610,8 +615,7 @@ const TABS = [
   { id: "feed", label: "Scopri", icon: "sparkles", testId: "nav-feed-tab" },
   { id: "otd", label: "Accadde oggi", icon: "calendar", testId: "nav-history-tab" },
   { id: "explore", label: "Esplora", icon: "globe", testId: "nav-explore-tab" },
-  { id: "search", label: "Cerca", icon: "search", testId: "nav-search-tab" },
-  { id: "saved", label: "Leggi dopo", icon: "bookmark", testId: "nav-saved-tab" }
+  { id: "search", label: "Cerca", icon: "search", testId: "nav-search-tab" }
 ];
 function renderNav() {
   const n = state.saved.length;
@@ -700,7 +704,7 @@ window.addEventListener("keydown", (e) => {
 /* ---------- Interfaccia per esplora.js ---------- */
 window.Cultora = {
   REST, TANE_KEY, wiki, buildPill, guessCategory, cleanText, sentences, truncate, shuffle, hash, icon, esc, fallback, toast,
-  readJSON, state, feeds, createFeed, itemsByKey, openTitle, update, onUpdate
+  readJSON, state, feeds, createFeed, itemsByKey, openTitle, update, onUpdate, CATS, setTab, toggleSave, isSaved, wikiSearch
 };
 
 /* ---------- Avvio ---------- */
