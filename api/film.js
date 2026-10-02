@@ -134,6 +134,11 @@ async function person(q) {
   })) };
 }
 
+async function search(q) {
+  const [j, osc] = await Promise.all([tmdb("/search/movie", { query: q, include_adult: "false", region: "IT" }), oscars()]);
+  return { items: (j.results || []).slice(0, 15).map((m) => card(m, osc)) };
+}
+
 module.exports = async (req, res) => {
   const q = req.query || {};
   if (!process.env.TMDB_API_KEY) return res.status(503).json({ errore: "Manca la chiave TMDB_API_KEY su Vercel" });
@@ -141,6 +146,7 @@ module.exports = async (req, res) => {
     let out;
     if (q.op === "movie" && /^\d+$/.test(q.id || "")) out = await movie(q.id);
     else if (q.op === "person" && String(q.q || "").trim().length > 1) out = await person(String(q.q).trim().slice(0, 60));
+    else if (q.op === "search" && String(q.q || "").trim().length > 1) out = await search(String(q.q).trim().slice(0, 80));
     else if (q.op === "discover") out = await discover(q);
     else return res.status(400).json({ errore: "Richiesta non valida" });
     res.setHeader("Cache-Control", "s-maxage=21600, stale-while-revalidate=86400");
