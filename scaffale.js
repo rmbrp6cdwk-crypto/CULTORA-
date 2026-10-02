@@ -45,7 +45,9 @@ css.textContent = `
 .sf-find{margin-top:20px;display:flex;align-items:center;gap:10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);padding:0 16px}
 .sf-find input{flex:1;min-width:0;background:none;border:0;outline:0;padding:12px 0;font-size:16px;color:#fff}
 .sf-find .ic-md{color:var(--gold)}
-.sf-found{margin-top:10px}
+.sf-found{margin-top:4px}
+.sf-found>.sf-label{margin-top:14px}
+.sf-found .sh-relrow{margin:0 -20px;padding:0 20px 4px}
 .sf-found:empty{display:none}
 .sf-none{font-size:13px;color:var(--dim)}
 .sf-sort{margin-top:22px;display:flex;gap:6px;border-radius:14px;background:rgba(255,255,255,.05);padding:4px}
@@ -170,7 +172,7 @@ const row = (fa) => `<div class="sf-sec"><p class="sf-label">${fa.label}</p><div
 function shell(cfg) {
   panel.innerHTML = `<div class="glow"></div><h1>${cfg.h1}</h1><p class="sub">${cfg.sub}</p>
     ${cfg.levels ? `<div class="lv" data-testid="shelf-level">${LEVELS.map(([id, l]) => `<button data-sf="level" data-v="${id}" data-testid="shelf-level-${id}">${l}</button>`).join("")}</div><p class="lv-hint"></p>` : ""}
-    ${cfg.find ? `<form class="sf-find" data-testid="sf-find-form">${icon("search", "ic-md")}<input type="search" enterkeyhint="search" placeholder="${cfg.find.ph}" autocomplete="off" data-testid="sf-find-input"></form><div class="sf-row sf-found no-scrollbar" data-testid="sf-found"></div>` : ""}
+    ${cfg.find ? `<form class="sf-find" data-testid="sf-find-form">${icon("search", "ic-md")}<input type="search" enterkeyhint="search" placeholder="${cfg.find.ph}" autocomplete="off" data-testid="sf-find-input"></form><div class="sf-found" data-testid="sf-found"></div>` : ""}
     <div class="sf-active hidden" data-testid="sf-active"></div>
     <div class="sf-sec sf-sug hidden" data-testid="sf-suggest"><p class="sf-label">${icon("sparkles", "ic-sm")} Affina la ricerca</p><div class="sf-row no-scrollbar"></div></div>
     ${cfg.facets.slice(0, 1).map(row).join("")}
@@ -236,7 +238,7 @@ async function load(cfg, more = false) {
 }
 
 const cover = (cfg, it) => `<div class="sh-cover ${cfg.square ? "sq" : ""}">${it.img ? `<img src="${esc(it.img)}" alt="" loading="lazy">` : `<span class="ph">${esc(it.title)}</span>`}${it.badge ? `<span class="sh-badge">${TROPHY}${esc(it.badge)}</span>` : ""}</div>`;
-const cardHTML = (cfg, it, i, rel) => `<button class="sh-card" data-sf="${rel ? "rel" : "detail"}" data-i="${i}" data-testid="${rel ? "shelf-rel-card" : "shelf-card"}-${i}" style="animation-delay:${(i % 20) * 0.03}s">
+const cardHTML = (cfg, it, i, mode) => `<button class="sh-card" data-sf="${mode || "detail"}" data-i="${i}" data-testid="${mode ? `shelf-${mode}-card` : "shelf-card"}-${i}" style="animation-delay:${(i % 20) * 0.03}s">
   ${cover(cfg, it)}<p class="sh-t">${esc(it.title)}</p><p class="sh-a">${esc(it.author || "")}</p><p class="sh-m">${esc(cfg.meta(it))}</p></button>`;
 
 /* ---------- Scheda dettaglio (con filtri cliccabili e titoli correlati) ---------- */
@@ -250,7 +252,7 @@ function addRow(el, cfg, title, items, testid) {
   const start = el._rel.length;
   el._rel.push(...items);
   el.querySelector(".sh-relbox").insertAdjacentHTML("beforeend", `<section class="sh-rel" data-testid="${testid}"><h3>${esc(title)}</h3>
-    <div class="sh-relrow no-scrollbar">${items.map((it, n) => cardHTML(cfg, it, start + n, true)).join("")}</div></section>`);
+    <div class="sh-relrow no-scrollbar">${items.map((it, n) => cardHTML(cfg, it, start + n, "rel")).join("")}</div></section>`);
 }
 
 function openDetail(cfg, it) {
@@ -343,18 +345,26 @@ panel.addEventListener("click", (e) => {
     case "sort": v.sort = b.dataset.v; refresh(cfg); break;
     case "more": v.page++; load(cfg, true); break;
     case "detail": openDetail(cfg, v.items[+b.dataset.i]); break;
+    case "found": openDetail(cfg, panel._found[+b.dataset.i]); break;
   }
 });
 
 panel.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const cfg = sections[panel.dataset.tab], input = e.target.querySelector("input"), row = panel.querySelector(".sf-found");
+  const cfg = sections[panel.dataset.tab], input = e.target.querySelector("input"), box = panel.querySelector(".sf-found");
   const q = input.value.trim();
   if (!cfg?.find || q.length < 2) return;
   input.blur();
-  row.innerHTML = `<span class="sf-none">Cerco…</span>`;
-  const list = await cfg.find.run(q).catch(() => null);
-  row.innerHTML = list?.length ? list.map((x) => chip(x, false, "found")).join("") : `<span class="sf-none" data-testid="sf-found-empty">Nessun risultato per “${esc(q)}”</span>`;
+  box.innerHTML = `<span class="sf-none">Cerco…</span>`;
+  const [titles, people] = await Promise.all([cfg.find.titles(q).catch(() => []), cfg.find.run ? cfg.find.run(q).catch(() => []) : []]);
+  panel._found = titles;
+  box.innerHTML = titles.length || people.length
+    ? `${titles.length ? `<p class="sf-label">Titoli</p><div class="sh-relrow no-scrollbar" data-testid="sf-found-titles">${titles.map((it, i) => cardHTML(cfg, it, i, "found")).join("")}</div>` : ""}
+      ${people.length ? `<p class="sf-label">${cfg.find.who}</p><div class="sf-row no-scrollbar" data-testid="sf-found-people">${people.map((x) => chip(x, false, "found")).join("")}</div>` : ""}`
+    : `<span class="sf-none" data-testid="sf-found-empty">Nessun risultato per “${esc(q)}”</span>`;
+});
+panel.addEventListener("input", (e) => {
+  if (e.target.matches(".sf-find input") && !e.target.value) panel.querySelector(".sf-found").innerHTML = "";
 });
 
 window.Scaffale = { register, tags, person, addRow, saveBtn, saveObj, loading, findWiki, TROPHY, PLAY };
@@ -386,8 +396,8 @@ function bookItem(d) {
     img: c ? `https://covers.openlibrary.org/b/id/${c}-L.jpg` : null, url: `https://openlibrary.org${d.key}`, work: d.key, subjects
   };
 }
-async function olSearch(q, { limit = 20, offset = 0, ita = true } = {}) {
-  const u = `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}${ita ? "&language=ita" : ""}&lang=it&sort=rating&limit=${limit}&offset=${offset}&fields=${OL_FIELDS}`;
+async function olSearch(q, { limit = 20, offset = 0, ita = true, sort = "rating" } = {}) {
+  const u = `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}${ita ? "&language=ita" : ""}&lang=it${sort ? `&sort=${sort}` : ""}&limit=${limit}&offset=${offset}&fields=${OL_FIELDS}`;
   const j = await (await fetch(u)).json();
   return (j.docs || []).map(bookItem);
 }
@@ -457,7 +467,9 @@ const books = {
   id: "books", h1: "Cosa <em>leggo</em> adesso?", sub: "Scegli un interesse e affina passo dopo passo: ogni filtro si aggiunge agli altri.",
   loading: "Cerco tra gli scaffali…", levels: true, start: [{ f: "theme", id: "fiction", label: "Romanzi" }], category: "letteratura",
   facets: [{ f: "theme", label: "Temi", options: BOOK_THEMES }, { f: "award", label: "Premi letterari", single: true, options: AWARDS }, { f: "epoch", label: "Epoca", single: true, options: EPOCHS }],
-  find: { ph: "Cerca un autore (es. Calvino)", run: async (q) => (await (await fetch(`https://openlibrary.org/search/authors.json?q=${encodeURIComponent(q)}&limit=8`)).json()).docs.filter((a) => a.work_count > 0).map((a) => ({ f: "author", id: a.key, label: a.name })) },
+  find: { ph: "Cerca un libro o un autore", who: "Autori",
+    titles: async (q) => { const r = await olSearch(q, { limit: 15, sort: "" }); return r.length ? r : olSearch(q, { limit: 15, sort: "", ita: false }); },
+    run: async (q) => (await (await fetch(`https://openlibrary.org/search/authors.json?q=${encodeURIComponent(q)}&limit=8`)).json()).docs.filter((a) => a.work_count > 0).map((a) => ({ f: "author", id: a.key, label: a.name })) },
   meta: (it) => [it.year, it.pages && `${it.pages} pag.`, it.rating && `★ ${it.rating.toFixed(1)}`].filter(Boolean).join(" · "),
   fetch: fetchBooks, detail: bookDetail, wikiQuery: (it) => `${it.title} ${it.authorName}`,
   wikiOk: (p) => !/\((film|serie)/i.test(p.title) && !/^[^.]*\s(è|was) un (film|serie)/i.test(p.extract || ""), saveObj: saveObj("letteratura")
@@ -558,6 +570,7 @@ async function podDetail(it, el) {
 const podcasts = {
   id: "podcast", h1: "Cosa <em>ascolto</em> oggi?", sub: "Podcast italiani per ogni curiosità. Aggiungi filtri per una ricerca sempre più mirata.",
   loading: "Cerco tra i podcast…", levels: true, square: true, start: [{ f: "theme", id: "storia", label: "Storia" }], category: "musica",
+  find: { ph: "Cerca un podcast per nome", titles: async (q) => (await podSearch(q)).slice(0, 15) },
   facets: [{ f: "theme", label: "Temi", options: POD.map(([id, l]) => [id, l]) }, { f: "genre", label: "Categorie", options: POD_GENRES }, { f: "size", label: "Episodi", single: true, options: POD_SIZE }, { f: "fresh", label: "Aggiornati", single: true, options: POD_FRESH }],
   meta: (it) => [it.genre, it.episodes && `${it.episodes} episodi`].filter(Boolean).join(" · "),
   fetch: fetchPodcasts, detail: podDetail, wikiQuery: (it) => it.title, saveObj: saveObj("musica")
