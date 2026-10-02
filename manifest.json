@@ -1,0 +1,10 @@
+{
+  "name": "Cultora · Pillole di cultura",
+  "short_name": "Cultora",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#090A0F",
+  "theme_color": "#090A0F",
+  "lang": "it"
+}
