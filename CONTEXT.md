@@ -1,7 +1,8 @@
+`markdown
 # CULTORA · Memoria del progetto (per l'assistente AI)
 
 > Se sei un assistente AI e stai leggendo questo file: è il riassunto completo del progetto.
-> Leggi anche `index.html`, `style.css`, `script.js`, `feste.js` e `esplora.js` in questo stesso repository prima di proporre modifiche.
+> Leggi anche `index.html`, `style.css`, `script.js`, `feste.js`, `esplora.js`, `scaffale.js` e `cinema.js` in questo stesso repository prima di proporre modifiche.
 
 ## Chi sono e come lavoro
 - Sono un principiante e uso soprattutto l'iPhone (Safari + GitHub da browser).
@@ -17,7 +18,7 @@
 - Installata sull'iPhone come icona nella schermata Home, a schermo intero (meta tag `apple-mobile-web-app-capable`).
 
 ## Tecnologia
-- Sito statico: **solo HTML + CSS + JavaScript puro**. Niente build, niente AI. Eccezioni: GitHub Actions per le notifiche e una piccola funzione Vercel (`api/beppa.js`) per Beppa.
+- Sito statico: **solo HTML + CSS + JavaScript puro**. Niente build, niente AI. Eccezioni: GitHub Actions per le notifiche e due piccole funzioni Vercel (`api/beppa.js` per Beppa, `api/film.js` per il Cinema).
 - File nella radice del repository:
   - `index.html`: struttura, meta tag, font Google (Fraunces, Outfit, JetBrains Mono)
   - `style.css`: tutto lo stile (dark mode)
@@ -26,12 +27,15 @@
   - `esplora.js`: scheda Esplora. Usa `window.Cultora`, l'interfaccia esposta in fondo a `script.js` (createFeed, buildPill, openTitle, onUpdate…), e aggiunge il suo CSS da solo. Le nuove funzioni si possono aggiungere qui senza toccare `script.js`.
   - `scripts/notifica.mjs` e `.github/workflows/notifiche.yml`: invio automatico delle notifiche
   - `beppa.js` e `api/beppa.js`: Beppa, la bibliotecaria che spiega le parole (vedi funzione 10)
+  - `geolo.js`: Geolo, l'esploratore che mostra i luoghi sulla mappa (vedi funzione 11)
+  - `scaffale.js`: menu laterale, motore dei "filtri a pila", Libri e Podcast (vedi funzione 12). Espone `window.Scaffale`.
+  - `cinema.js` e `api/film.js`: sezione Cinema con i film di TMDB (vedi funzione 13). Va caricato dopo `scaffale.js`.
 - API usate, chiamate direttamente dal browser (`origin=*` per CORS):
   - `https://it.wikipedia.org/w/api.php`: ricerca (`generator=search`, `gsrsort=random`, `intitle:`, `morelike:`), estratti, immagini, articolo completo
   - `https://it.wikipedia.org/api/rest_v1/feed/onthisday/events/MM/DD`: "Accadde oggi"
 
 ## Funzioni attuali
-1. **Scopri:** feed infinito e casuale con scroll snap verticale. Filtro per categoria (Tutto, Scienza, Storia, Arte, Natura, Scoperte, Spazio, Tecnologia, Filosofia, Letteratura, Musica).
+1. **Scopri:** feed infinito e casuale con scroll snap verticale. Filtro per categoria (Tutto, Scienza, Storia, Arte, Natura, Scoperte, Spazio, Tecnologia, Filosofia, Letteratura, Musica, Cinema).
 2. **Accadde oggi:** eventi storici del giorno, con badge dell'anno.
 3. **Cerca:** si scrive un argomento (es. "oceani") e il feed mostra solo voci con quel termine nel titolo. Ci sono suggerimenti e ricerche recenti.
 4. **Leggi dopo:** pillole salvate in `localStorage` (chiave `cultora_leggi_dopo`), con badge contatore nella barra in basso.
@@ -47,6 +51,17 @@
 10. **Beppa, la bibliotecaria** (`beppa.js` + funzione Vercel `api/beppa.js`): quando apri Approfondisci, Beppa (faccina SVG disegnata nel codice) saluta con un fumetto che sparisce dopo 7 secondi. Selezionando una parola nell'articolo compare "Chiedi a Beppa", che apre una finestrella con 3 significati riassunti dal Vocabolario Treccani e il tasto "More" verso la pagina Treccani.
    - `api/beppa.js` gira su Vercel (gratis, cartella `api/` riconosciuta in automatico): legge la pagina `treccani.it/vocabolario/<parola>/` (dati in `__NEXT_DATA__`), prova anche `<parola>1`, riporta plurali e verbi alla forma base con il Wikizionario e, se Treccani non ha la parola, usa la definizione del Wikizionario.
    - Treccani non ha un'API ufficiale: se cambia il suo sito, va sistemato `api/beppa.js`.
+11. **Geolo, l'esploratore** (`geolo.js`, cappello da safari e binocolo, colori verde acqua): saluta insieme a Beppa quando apri Approfondisci. Selezionando il nome di un luogo (fino a 4 parole) compare "Chiedi a Geolo", accanto a "Chiedi a Beppa" se è una parola sola. Geolo apre una finestrella con la mappa OpenStreetMap (iframe `export/embed.html` con segnaposto), la descrizione Wikidata, 2 frasi da Wikipedia e i tasti Wikipedia e "Apri in Mappe" (Apple Maps).
+   - Le coordinate arrivano dall'API di Wikipedia (`prop=coordinates`, con `dim`/`type` per lo zoom). Se il titolo esatto non ha coordinate, fa una ricerca.
+   - `geolo.js` espone `window.Geolo = { avatar, ask }` e riusa alcune classi CSS di `beppa.js` (beppa-head, beppa-x, beppa-dots), quindi va caricato dopo `beppa.js`.
+
+12. **Menu laterale e Scaffale** (`scaffale.js`): il tasto ☰ in alto a sinistra apre il menu con solo **Scaffale** (Libri, Podcast, Cinema) e **Il tuo spazio** (Leggi dopo). Scopri, Accadde oggi, Esplora e Cerca stanno solo nella barra in basso.
+   - **Filtri a pila stile Netflix:** ogni filtro toccato si aggiunge agli altri (riquadro "I tuoi filtri", si tolgono con la X o "Azzera"). Dopo ogni ricerca compare "Affina la ricerca" con filtri collegati ai risultati (+ Medioevo, + Regia di…). La prima riga di filtri è sempre visibile, le altre sono sotto "Altri filtri".
+   - **Scheda dettaglio:** generi, temi, autori, attori e registi sono toccabili e diventano filtri. In fondo ci sono le file di titoli correlati (si aprono una sopra l'altra).
+   - **Libri** (Open Library, + Wikidata per i premi): livelli Curioso/Appassionato/Esperto, Temi (soggetti Open Library in inglese tradotti con il dizionario `SUBJ`), Premi letterari (Strega, Campiello, Viareggio, Booker, Hugo, Nebula: elenco dei vincitori da Wikidata, proprietà P166 + P648), Epoca, ricerca autore. Correlati: "Altri libri di…" e "Sullo stesso tema".
+   - **Podcast** (Apple Podcasts, `itunes.apple.com/search` e `/lookup`): Temi (parole di ricerca), Categorie Apple, numero di episodi, aggiornati di recente. Nella scheda: ultimi 6 episodi ascoltabili direttamente nell'app (▶), "Altri di…" e "Podcast simili".
+13. **Cinema** (`cinema.js` + funzione Vercel `api/film.js`): film da **TMDB** in italiano. Filtri: Temi (parole chiave TMDB, es. "based on true story" = Storia vera, tradotte con `KW_IT`), Generi, Premiati agli Oscar (elenco da Wikidata), Voto alto, Cinema italiano, Decennio, Durata, ricerca attore/regista, ordinamento Popolari/Più votati/Più recenti. Scheda: locandina, trama, trailer, regia e cast toccabili, temi, "Dove guardarlo in Italia" (abbonamento/noleggio), "Ti potrebbe piacere anche".
+   - **Chiave TMDB:** sta solo su Vercel come variabile d'ambiente `TMDB_API_KEY` (Settings → Environment Variables), mai nel codice. Va bene sia la "Chiave API" (32 caratteri) sia il "Token di accesso in lettura" (inizia con `eyJ`). Dopo averla aggiunta serve un nuovo deploy (Deployments → ⋯ → Redeploy). Senza chiave il Cinema mostra un avviso.
 
 ## Notifiche ricorrenze (come funzionano)
 - `feste.js`: banner, campanella, iscrizione push, apertura ricerca da `?q=`, **logo festivo** (tutto il giorno della ricorrenza il logo diventa dorato e luccicante, il puntino diventa un'icona a tema scelta da `TEMI` (cuore, stella, foglia, π…); toccando il logo si apre la scheda "Oggi si celebra" con Scopri). Usa l'interfaccia di `script.js` (clicca i pulsanti esistenti).
@@ -79,6 +94,11 @@
 4. Aggiunte le ricorrenze del giorno con notifiche push alle 12:00 (funzionanti).
 5. Aggiunti il logo festivo (tutto il giorno nelle ricorrenze) e la scheda Esplora (tendenze, immagine del giorno, tana del coniglio).
 6. Aggiunta Beppa, la bibliotecaria che spiega le parole con il Vocabolario Treccani.
+7. Aggiunto Geolo, l'esploratore che mostra i luoghi sulla mappa.
+8. Aggiunti il menu laterale, lo Scaffale (Libri e Podcast) e il Cinema (TMDB) con filtri a pila e titoli correlati.
+
+## Da fare subito
+- Aggiungere su Vercel la chiave TMDB (`TMDB_API_KEY`) e fare Redeploy: finché manca, la sezione Cinema mostra solo un avviso.
 
 ## Idee future (non ancora fatte)
 - Quiz veloce nel feed sulle pillole lette
