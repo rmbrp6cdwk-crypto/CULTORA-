@@ -29,13 +29,19 @@ css.textContent = `
 .beppa-eyes{transform-origin:32px 34.6px;animation:beppaBlink 4s infinite}
 @keyframes beppaBlink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
 .beppa-avatar{flex-shrink:0;width:58px;height:58px;border-radius:50%;background:#1d1a14;border:2px solid #F5B83D;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.45)}
-.beppa-hi{position:absolute;left:12px;right:12px;bottom:22px;z-index:57;display:flex;align-items:flex-end;gap:10px;animation:beppaIn .55s cubic-bezier(.34,1.56,.64,1) both;transition:opacity .4s,transform .4s}
+.beppa-hi{position:absolute;left:12px;right:12px;bottom:22px;z-index:57;display:flex;flex-direction:column;gap:10px;animation:beppaIn .55s cubic-bezier(.34,1.56,.64,1) both;transition:opacity .4s,transform .4s}
 .beppa-hi.out{opacity:0;transform:translateY(16px)}
 @keyframes beppaIn{from{opacity:0;transform:translateY(30px) scale(.9)}}
 .beppa-bubble{position:relative;flex:1;border-radius:18px 18px 18px 4px;border:1px solid rgba(245,184,61,.45);background:rgba(20,16,6,.95);padding:12px 34px 12px 14px;font-size:13.5px;line-height:1.45;color:#f1e7cf;box-shadow:0 10px 30px rgba(0,0,0,.5)}
 .beppa-bubble b{color:#F5B83D}
+.beppa-row{display:flex;align-items:flex-end;gap:10px}
+.beppa-row.geo{flex-direction:row-reverse}
+.beppa-row.geo .beppa-bubble{border-radius:18px 18px 4px 18px;border-color:rgba(34,211,238,.45);background:rgba(4,22,26,.95);color:#d5f5fa}
+.beppa-row.geo .beppa-bubble b{color:#22D3EE}
 .beppa-x{position:absolute;right:6px;top:6px;width:24px;height:24px;border-radius:50%;color:#94A3B8;font-size:16px;line-height:1}
-.beppa-ask{position:fixed;z-index:200;display:inline-flex;align-items:center;gap:8px;border-radius:999px;background:#F5B83D;color:#1a1204;padding:5px 14px 5px 5px;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.5);animation:beppaIn .3s ease both;-webkit-user-select:none;user-select:none}
+.beppa-bar{position:fixed;z-index:200;display:flex;gap:8px;animation:beppaIn .3s ease both}
+.beppa-ask{display:inline-flex;align-items:center;gap:8px;border-radius:999px;background:#F5B83D;color:#1a1204;padding:5px 14px 5px 5px;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.5);-webkit-user-select:none;user-select:none;white-space:nowrap}
+.beppa-ask.geo{background:#22D3EE;color:#062a30}
 .beppa-ask .beppa-avatar{width:28px;height:28px;border-width:1.5px;box-shadow:none}
 .beppa-card{position:absolute;left:10px;right:10px;bottom:14px;z-index:59;max-height:62%;overflow-y:auto;border-radius:22px;border:1px solid rgba(245,184,61,.45);background:#14110b;padding:16px;box-shadow:0 -10px 40px rgba(0,0,0,.6);animation:beppaIn .45s cubic-bezier(.34,1.56,.64,1) both}
 .beppa-head{display:flex;align-items:center;gap:12px;padding-right:28px}
@@ -51,7 +57,7 @@ css.textContent = `
 .beppa-dots span{display:inline-block;animation:beppaDot 1.2s infinite}
 .beppa-dots span:nth-child(2){animation-delay:.2s}.beppa-dots span:nth-child(3){animation-delay:.4s}
 @keyframes beppaDot{0%,60%,100%{opacity:.2}30%{opacity:1}}
-@media(prefers-reduced-motion:reduce){.beppa-eyes,.beppa-hi,.beppa-card,.beppa-ask{animation:none}}`;
+@media(prefers-reduced-motion:reduce){.beppa-eyes,.beppa-hi,.beppa-card,.beppa-bar{animation:none}}`;
 document.head.appendChild(css);
 
 const avatar = (cls = "") => `<span class="beppa-avatar ${cls}">${FACE}</span>`;
@@ -65,8 +71,9 @@ function sayHi() {
   const el = document.createElement("div");
   el.className = "beppa-hi";
   el.setAttribute("data-testid", "beppa-greeting");
-  el.innerHTML = `${avatar()}<div class="beppa-bubble">Ehi ciao! Se non conosci il significato di una parola, <b>selezionala e chiedi a me</b>, stupido analfabeta!
-    <button class="beppa-x" data-testid="beppa-greeting-close" aria-label="Chiudi">×</button></div>`;
+  el.innerHTML = `<div class="beppa-row">${avatar()}<div class="beppa-bubble">Ehi ciao! Se non conosci il significato di una parola, <b>selezionala e chiedi a me</b>, stupido analfabeta!
+    <button class="beppa-x" data-testid="beppa-greeting-close" aria-label="Chiudi">×</button></div></div>
+    ${window.Geolo ? `<div class="beppa-row geo" data-testid="geolo-greeting">${window.Geolo.avatar()}<div class="beppa-bubble">E se non sai dove si trova un posto, <b>seleziona il nome e chiedi a Geolo</b>: te lo faccio vedere sulla mappa!</div></div>` : ""}`;
   const hide = () => { el.classList.add("out"); setTimeout(() => el.remove(), 400); };
   el.querySelector(".beppa-x").onclick = hide;
   phone.appendChild(el);
@@ -76,45 +83,56 @@ function sayHi() {
 new MutationObserver((muts) => {
   muts.forEach((m) => {
     if ([...m.addedNodes].some((n) => n.classList?.contains("sheet"))) sayHi();
-    if ([...m.removedNodes].some((n) => n.classList?.contains("sheet")) && !$(".sheet")) removeAll(".beppa-hi, .beppa-card, .beppa-ask");
+    if ([...m.removedNodes].some((n) => n.classList?.contains("sheet")) && !$(".sheet")) removeAll(".beppa-hi, .beppa-card, .geolo-card, .beppa-bar");
   });
 }).observe(phone, { childList: true });
 
-/* ---------- Selezione di una parola → "Chiedi a Beppa" ---------- */
-function selectedWord() {
+/* ---------- Selezione → "Chiedi a Beppa" (una parola) / "Chiedi a Geolo" (un luogo) ---------- */
+function selectedText() {
   const sel = getSelection();
   if (!sel || sel.isCollapsed || !sel.rangeCount) return null;
   const node = sel.anchorNode?.nodeType === 1 ? sel.anchorNode : sel.anchorNode?.parentElement;
   if (!node?.closest(".sheet")) return null;
-  const w = sel.toString().trim().replace(/^[^A-Za-zÀ-ÿ]+|[^A-Za-zÀ-ÿ]+$/g, "").split(/['’]/).pop();
-  return /^[A-Za-zÀ-ÿ-]{2,30}$/.test(w) ? { w, rect: sel.getRangeAt(0).getBoundingClientRect() } : null;
+  const text = sel.toString().trim().replace(/^[^A-Za-zÀ-ÿ]+|[^A-Za-zÀ-ÿ]+$/g, "").replace(/\s+/g, " ");
+  const w = text.split(/['’]/).pop();
+  const word = /^[A-Za-zÀ-ÿ-]{2,30}$/.test(w) ? w : null;
+  const place = window.Geolo && /^[A-Za-zÀ-ÿ'’ .-]{2,40}$/.test(text) && text.split(" ").length <= 4 ? text : null;
+  return word || place ? { word, place, rect: sel.getRangeAt(0).getBoundingClientRect() } : null;
 }
 
 let selTimer;
 document.addEventListener("selectionchange", () => {
   clearTimeout(selTimer);
-  if (!$(".sheet") && !$(".beppa-ask")) return;
+  if (!$(".sheet") && !$(".beppa-bar")) return;
   selTimer = setTimeout(() => {
-    removeAll(".beppa-ask");
-    const s = selectedWord();
+    removeAll(".beppa-bar");
+    const s = selectedText();
     if (!s) return;
-    const b = document.createElement("button");
-    b.className = "beppa-ask";
-    b.setAttribute("data-testid", "beppa-ask-button");
-    b.innerHTML = `${avatar()} Chiedi a Beppa`;
+    const bar = document.createElement("div");
+    bar.className = "beppa-bar";
+    const btn = (cls, testid, face, label, fn) => {
+      const b = document.createElement("button");
+      b.className = `beppa-ask ${cls}`;
+      b.setAttribute("data-testid", testid);
+      b.innerHTML = `${face} ${label}`;
+      b.addEventListener("pointerdown", (e) => e.preventDefault());
+      b.addEventListener("mousedown", (e) => e.preventDefault());
+      b.onclick = () => { bar.remove(); getSelection().removeAllRanges(); fn(); };
+      bar.appendChild(b);
+    };
+    if (s.word) btn("", "beppa-ask-button", avatar(), "Chiedi a Beppa", () => ask(s.word));
+    if (s.place) btn("geo", "geolo-ask-button", window.Geolo.avatar(), "Chiedi a Geolo", () => window.Geolo.ask(s.place));
+    const width = bar.children.length * 160;
     const below = s.rect.bottom + 58 < innerHeight;
-    b.style.top = `${below ? s.rect.bottom + 12 : s.rect.top - 50}px`;
-    b.style.left = `${Math.min(Math.max(8, s.rect.left + s.rect.width / 2 - 75), innerWidth - 158)}px`;
-    b.addEventListener("pointerdown", (e) => e.preventDefault());
-    b.addEventListener("mousedown", (e) => e.preventDefault());
-    b.onclick = () => { b.remove(); getSelection().removeAllRanges(); ask(s.w); };
-    document.body.appendChild(b);
+    bar.style.top = `${below ? s.rect.bottom + 12 : s.rect.top - 50}px`;
+    bar.style.left = `${Math.min(Math.max(8, s.rect.left + s.rect.width / 2 - width / 2), Math.max(8, innerWidth - width - 8))}px`;
+    document.body.appendChild(bar);
   }, 250);
 });
 
 /* ---------- Finestrella con il significato ---------- */
 function card(inner) {
-  removeAll(".beppa-card, .beppa-hi");
+  removeAll(".beppa-card, .geolo-card, .beppa-hi");
   const el = document.createElement("div");
   el.className = "beppa-card no-scrollbar";
   el.setAttribute("data-testid", "beppa-definition-card");
