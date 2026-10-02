@@ -189,3 +189,6 @@ ul{list-style:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 @media(prefers-reduced-motion:reduce){.card.active .card-img,.shimmer,.saved-item{animation:none}.card-content,.sheet{transition:none}}
+/* Blocca lo spostamento laterale delle pagine (la luce dorata usciva dal bordo) */
+.glow{right:0}
+.panel,.sh-detail{overflow-x:hidden}
