@@ -1,0 +1,41 @@
+name: Notifica ricorrenze
+
+on:
+  schedule:
+    - cron: "0 10 * * *"
+    - cron: "0 11 * * *"
+  workflow_dispatch:
+    inputs:
+      test:
+        description: "Invia una notifica di prova anche se oggi non c'è una ricorrenza"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  notifica:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-save web-push@3
+      - name: Invia notifica
+        run: node scripts/notifica.mjs
+        env:
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          PUSH_SUBSCRIPTION: ${{ secrets.PUSH_SUBSCRIPTION }}
+          SCHEDULE: ${{ github.event.schedule }}
+          TEST: ${{ inputs.test }}
+      - name: Mantieni attive le notifiche (GitHub le spegne dopo 60 giorni senza modifiche)
+        run: |
+          last=$(git log -1 --format=%ct)
+          if [ $(( ($(date +%s) - last) / 86400 )) -ge 50 ]; then
+            git config user.name "cultora-bot"
+            git config user.email "cultora-bot@users.noreply.github.com"
+            git commit --allow-empty -m "Mantieni attive le notifiche"
+            git push
+          fi
