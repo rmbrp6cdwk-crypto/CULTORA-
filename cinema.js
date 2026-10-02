@@ -1,4 +1,3 @@
-javascript
 // Cultora · Cinema: film da TMDB (tramite la funzione Vercel api/film.js) con filtri a pila e film correlati
 (() => {
 "use strict";
