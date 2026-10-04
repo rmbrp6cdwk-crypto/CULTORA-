@@ -73,7 +73,10 @@ css.textContent = `
 .sh-m{margin-top:3px;font-family:var(--mono);font-size:10.5px;color:var(--gold)}
 .sh-foot .sh-more{margin:22px auto 0;display:flex}
 .sh-detail{position:absolute;inset:0;z-index:58;overflow-y:auto;background:var(--sheet);padding:70px 22px 60px;animation:rise .35s ease both}
-.sh-detail>.round-btn{position:absolute;right:16px;top:16px;z-index:2}
+.sh-bar{position:sticky;top:-70px;z-index:5;display:flex;align-items:center;justify-content:space-between;height:64px;margin:-70px -22px 6px;padding:0 16px;pointer-events:none;background:linear-gradient(to bottom,rgba(11,12,18,.85),rgba(11,12,18,0))}
+.sh-bar button{pointer-events:auto}
+.sh-back{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 16px 0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.55);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);color:#fff;font-size:14px;font-weight:600;transition:background-color .2s,transform .2s}
+.sh-back:active{transform:scale(.95)}
 .sh-backdrop{position:relative;margin:-70px -22px 0;height:210px;overflow:hidden}
 .sh-backdrop img{width:100%;height:100%;object-fit:cover;opacity:.75}
 .sh-backdrop::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(11,12,18,.1),var(--sheet))}
@@ -260,7 +263,8 @@ function openDetail(cfg, it) {
   el.className = "sh-detail no-scrollbar";
   el.setAttribute("data-testid", "shelf-detail");
   el._rel = [];
-  el.innerHTML = `<button class="round-btn" data-sd="close" data-testid="shelf-detail-close" aria-label="Chiudi">${icon("x")}</button>
+  el.innerHTML = `<div class="sh-bar"><button class="sh-back" data-sd="back" data-testid="shelf-detail-back">${icon("arrowLeft", "ic-md")} Indietro</button>
+    <button class="round-btn" data-sd="close" data-testid="shelf-detail-close" aria-label="Chiudi tutto">${icon("x")}</button></div>
     <div class="sh-dbody"><div class="sh-dhead">${cover(cfg, { ...it, badge: "" })}
       <div><h2 data-testid="shelf-detail-title">${esc(it.title)}</h2><p class="sh-a" style="white-space:normal;font-size:14px">${esc(it.author || "")}</p><p class="sh-m" style="font-size:12px">${esc(cfg.meta(it))}</p></div></div>
     <div class="sh-dmore"></div><div class="sh-relbox"></div></div>`;
@@ -270,7 +274,8 @@ function openDetail(cfg, it) {
     if (!b) return;
     e.stopPropagation();
     const a = b.dataset.sd || b.dataset.sf;
-    if (a === "close") { el.remove(); stopAudio(); }
+    if (a === "back") { el.remove(); stopAudio(); }
+    if (a === "close") { document.querySelectorAll(".sh-detail").forEach((d) => d.remove()); stopAudio(); }
     if (a === "rel") openDetail(cfg, el._rel[+b.dataset.i]);
     if (a === "filter") {
       document.querySelectorAll(".sh-detail").forEach((d) => d.remove());
